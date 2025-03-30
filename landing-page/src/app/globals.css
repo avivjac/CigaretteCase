@@ -1,75 +1,119 @@
-/* צבעים כלליים */
-:root {
-  --primary-color: #ff6600; /* כתום בולט */
-  --secondary-color: #333; /* אפור כהה לטקסט */
-  --background-color: #f9f9f9; /* רקע בהיר */
-  --button-hover: #e65c00;
-  --border-radius: 12px; /* עיגול פינות אחיד */
-  --font-family: 'Poppins', sans-serif;
-}
-
 /* עיצוב כללי לעמוד */
-body {
-  font-family: var(--font-family);
-  background-color: var(--background-color);
-  color: var(--secondary-color);
-  margin: 0;
-  padding: 0;
-  line-height: 1.6;
-}
-
-/* כותרות */
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-/* עיצוב כפתורים */
-button {
-  background-color: var(--primary-color);
+.landing-container {
+  background: linear-gradient(to bottom, #1e1e1e, #3a3a3a);
   color: white;
-  padding: 12px 20px;
-  font-size: 16px;
-  border: none;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  transition: background 0.3s ease-in-out;
-}
-
-button:hover {
-  background-color: var(--button-hover);
-}
-
-/* שדות קלט */
-input, textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: var(--border-radius);
-  font-size: 16px;
-}
-
-input:focus, textarea:focus {
-  border-color: var(--primary-color);
-  outline: none;
-  box-shadow: 0 0 5px rgba(255, 102, 0, 0.5);
-}
-
-/* עיצוב כרטיסיות */
-.card {
-  background: white;
-  padding: 20px;
-  border-radius: var(--border-radius);
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-/* קונטיינר כללי */
-.container {
-  max-width: 800px;
-  margin: auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   padding: 20px;
   text-align: center;
 }
+
+/* כותרת */
+.header h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: #d1d1d1;
+}
+
+.highlight {
+  font-size: 1rem;
+  color: #ffa500;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* אזור תצוגת התמונות */
+.product-showcase {
+  background: white;
+  color: black;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.image-container {
+  position: relative;
+  height: 500px;
+  background: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* חיצים להחלפת תמונות */
+.arrow-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.arrow-button:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.arrow-button.left {
+  left: 10px;
+}
+
+.arrow-button.right {
+  right: 10px;
+}
+
+/* כפתור קריאה לפעולה */
+.cta-container {
+  margin-top: 20px;
+}
+
+.cta-button {
+  background: #ff6600;
+  color: white;
+  font-size: 1.2rem;
+  padding: 10px 20px;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.cta-button:hover {
+  background: #e65c00;
+  transform: scale(1.05);
+}
+
+.shipping-info {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #d1d1d1;
+}
+
+
 
 
 /* @import "tailwindcss";

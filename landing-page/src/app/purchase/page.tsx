@@ -6,15 +6,17 @@ export default function PurchasePage() {
   const router = useRouter();
 
   return (
-    <div style={{ textAlign: "center", padding: "50px" }}>
-      <h1>💳 עמוד רכישה</h1>
-      <p>כאן תוכל להשלים את הרכישה שלך!</p>
-      <button 
-        onClick={() => router.push("/")} 
-        style={{ padding: "10px 20px", fontSize: "18px", cursor: "pointer" }}
-      >
-        חזרה לדף הבית
-      </button>
+    <div className="landing-container">
+      <div className="product-showcase">
+        <h1>💳 עמוד רכישה</h1>
+        <p className="description">כאן תוכל להשלים את הרכישה שלך!</p>
+        <button 
+          onClick={() => router.push("/")} 
+          className="cta-button"
+        >
+          חזרה לדף הבית
+        </button>
+      </div>
     </div>
   );
 }
