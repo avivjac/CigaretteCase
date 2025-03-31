@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-//import "./globals.css";
 
 const images = [
   "/img/IMG_2087.jpeg",
@@ -14,6 +13,7 @@ const images = [
 export default function Home() {
   const router = useRouter();
   const [currentImage, setCurrentImage] = useState(0);
+  const [cart, setCart] = useState([]);
 
   const nextImage = () => {
     setCurrentImage((prev) => (prev + 1) % images.length);
@@ -23,11 +23,17 @@ export default function Home() {
     setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  const addToCart = () => {
+    setCart((prevCart) => [...prevCart, { id: currentImage, price: 30 }]);
+  };
+
+  const totalPrice = cart.length >= 4 ? Math.floor(cart.length / 4) * 100 + (cart.length % 4) * 30 : cart.length * 30;
+
   return (
     <div className="landing-container">
       {/* Header */}
       <header className="header">
-        <h1>קופסאות סיגריות בהתאמה אישית</h1>
+        <h1>קופסאות סיגריות</h1>
         <p className="subtitle">הגן על הסיגריות שלך עם סטייל ייחודי, עיצוב אישי וחומרים איכותיים.</p>
         <p className="highlight">עשרות לקוחות כבר רכשו והמליצו!</p>
       </header>
@@ -41,6 +47,8 @@ export default function Home() {
         </div>
         <h2>מבחר עיצובים חדשניים</h2>
         <p className="description">בחר מתוך מגוון רחב של עיצובים או צור את הקופסה הייחודית שלך בהתאמה אישית מלאה.</p>
+        <p className="price">מחיר ליחידה: 30₪ | מבצע: 4 ב-100₪</p>
+        <button className="add-to-cart" onClick={addToCart}>הוסף לעגלה</button>
       </div>
 
       {/* Call to Action */}
@@ -51,6 +59,11 @@ export default function Home() {
             הזמן עכשיו
           </button>
         <p className="shipping-info">משלוח חינם בכל הזמנה מעל 199₪</p>
+      </div>
+      {/* Cart Summary */}
+      <div className="cart-summary">
+        <h3>פריטים בעגלה: {cart.length}</h3>
+        <p>מחיר כולל: {totalPrice}₪</p>
       </div>
     </div>
   );
