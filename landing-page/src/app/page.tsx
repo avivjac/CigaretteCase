@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState,useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { useRef } from "react";
+
 
 //connect to supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
@@ -14,6 +16,7 @@ export default function Home() {
   const router = useRouter();
   const [currentImage, setCurrentImage] = useState(0);
   const [cart, setCart] = useState<{ name: string; price: number }[]>([]);
+  const badgeRef = useRef<HTMLSpanElement>(null);
 
   const [products, setProducts] = useState<
     { id: number; name: string; price: number; image_url: string }[]
@@ -34,7 +37,7 @@ export default function Home() {
     const fetchProducts = async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("id, name, price, image_url");
+        .select("*");
   
       if (error) {
         console.error("שגיאה בשליפת מוצרים:", error.message);
@@ -63,14 +66,43 @@ export default function Home() {
       const updatedCart = [...existingCart, newItem];
       localStorage.setItem("cart", JSON.stringify(updatedCart));
       setCart(updatedCart);
+  
+      // ✨ הוספת אפקט bounce
+      if (badgeRef.current) {
+        badgeRef.current.classList.remove("bounce");
+        void badgeRef.current.offsetWidth; // טריק לריענון אנימציה
+        badgeRef.current.classList.add("bounce");
+      }
     }
   };
+  
   
   
   
 
   return (
     <div className="landing-container">
+      <div className="sticky-cart-header">
+        <div className="cart-info">
+        <div className="cart-badge-wrapper">
+          <span>🛒</span>
+          <span ref={badgeRef} className="cart-badge">{cart.length}</span>
+        </div>
+          <span>💸 סך הכול: {totalPrice}₪</span>
+        </div>
+        <div className="cart-actions">
+          <button className="cta-button small" onClick={() => router.push("/purchase")}>
+            קנה עכשיו
+          </button>
+          <button className="clear-cart-button" onClick={() => {
+            localStorage.removeItem("cart");
+            setCart([]);
+          }}>
+            נקה עגלה
+          </button>
+        </div>
+      </div>
+
       {/* Header */}
       <header className="header">
         <h1>קופסאות סיגריות</h1>
@@ -81,24 +113,26 @@ export default function Home() {
       {/* Product Showcase */}
       {products.length > 0 && (
       <div className="product-showcase">
-        <div className="image-container">
-          <button onClick={prevImage} className="arrow-button left">&#9665;</button>
-            <img
-              src={products[currentProductIndex].image_url}
-              alt={products[currentProductIndex].name}
-              className="product-image"
-            />
-          <button onClick={nextImage} className="arrow-button right">&#9655;</button>
+      <div className="image-container">
+        <button onClick={prevImage} className="arrow-button left">&#9665;</button>
+    
+        <div onClick={addToCart} style={{ cursor: "pointer" }}>
+          <img
+            src={products[currentProductIndex].image_url}
+            alt={products[currentProductIndex].name}
+            className="product-image clickable-image"
+          />
         </div>
-        <h2>{products[currentProductIndex].name}</h2>
-        <p className="description">בחר מתוך מגוון רחב של עיצובים בהתאמה אישית מלאה.</p>
-        <p className="price">
-          מחיר ליחידה: {products[currentProductIndex].price}₪ | מבצע: 4 ב-100₪
-        </p>
-        <button className="add-to-cart" onClick={addToCart}>
-          הוסף לעגלה
-        </button>
+    
+        <button onClick={nextImage} className="arrow-button right">&#9655;</button>
       </div>
+    
+      <h2>{products[currentProductIndex].name}</h2>
+      <p className="description">בחר מתוך מגוון רחב של עיצובים בהתאמה אישית מלאה.</p>
+      <p className="price">
+        מחיר ליחידה: {products[currentProductIndex].price}₪ | מבצע: 4 ב-100₪
+      </p>
+    </div>    
 )}
       {/* Call to Action */}
       <div className="cta-container">
