@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
 
+//database connection
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 export const supabase = createClient(supabaseUrl, supabaseKey);
@@ -53,7 +54,7 @@ export default function Home() {
       badgeRef.current.classList.add("bounce");
     }
 
-    setSelectedProduct(null);
+    //setSelectedProduct(null);
   };
 
   return (
