@@ -8,6 +8,7 @@ export default function PurchasePage() {
   const router = useRouter();
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
+  const [cart, setCart] = useState<{ name: string; price: number }[]>([]);
 
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -19,6 +20,11 @@ export default function PurchasePage() {
     const remainder = count % 4;
     const calculatedTotal = setsOf4 * 100 + remainder * 30;
 
+    const total = cartItems.length >= 4
+    ? Math.floor(cartItems.length / 4) * 100 + (cartItems.length % 4) * 30
+    : cartItems.length * 30;
+
+
     setTotal(calculatedTotal);
   }, []);
 
@@ -28,22 +34,33 @@ export default function PurchasePage() {
         <h1>💳 עמוד רכישה</h1>
         <p className="description">כאן תוכל להשלים את הרכישה שלך!</p>
         <h2>סה"כ לתשלום: {total} ₪</h2>
-          <ul style={{ listStyle: "none", padding: 0 }}>
-           {cartItems.map((item, index) => (
-              <li key={index}>
-                {/* {item.name} - {item.price} ₪ */}
-              </li>
+        <table className="cart-table">
+          <thead>
+            <tr>
+              <th>מוצר</th>
+              <th>מחיר</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cartItems.map((item, index) => (
+              <tr key={index}>
+                <td>{item.name}</td>
+                <td>{item.price} ₪</td>
+              </tr>
             ))}
-          </ul>
+          </tbody>
+        </table>
+
         <button 
           onClick={() => router.push("/")} 
           className="cta-button"
         >
           חזרה לדף הבית
         </button>
-        <button onClick={() => localStorage.removeItem("cart")}>
-          נקה עגלה
-        </button>
+        <button className="clear-cart-button-body" onClick={() => {
+            localStorage.removeItem("cart");
+            setCart([]);
+          }}>נקה עגלה</button>
       </div>
     </div>
   );

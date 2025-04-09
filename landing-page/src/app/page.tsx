@@ -40,12 +40,15 @@ export default function Home() {
 
   const addToCart = (product: any) => {
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
+    //create the new item from database
     const newItem = {
-      name: product.name,
-      price: product.price,
-    };
+      id: selectedProduct.id,
+      name: selectedProduct.name,
+      price: selectedProduct.price,
+      image_url: selectedProduct.image_url,
+    };    
     const updatedCart = [...existingCart, newItem];
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    localStorage.setItem("cart", JSON.stringify(updatedCart)); //save to lacal storage
     setCart(updatedCart);
 
     if (badgeRef.current) {
@@ -96,6 +99,11 @@ export default function Home() {
 
       <div className="cta-container">
         <button className="cta-button" onClick={() => router.push("/purchase")}>הזמן עכשיו</button>
+        <button className="clear-cart-button-body" onClick={() => {
+          localStorage.removeItem("cart");
+          setCart([]);
+          }}>נקה עגלה
+        </button>
         <p className="shipping-info">משלוח חינם בכל הזמנה מעל 199₪</p>
       </div>
 
