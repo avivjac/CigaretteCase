@@ -14,7 +14,13 @@ export default function Home() {
   const [products, setProducts] = useState<
     { id: number; name: string; price: number; stock: number; image_url: string }[]
   >([]);
-  const [cart, setCart] = useState<{ name: string; price: number }[]>([]);
+  const [cart, setCart] = useState<{
+    id: number;
+    name: string;
+    price: number;
+    image_url: string;
+    quantity: number;
+  }[]>([]);  
   const badgeRef = useRef<HTMLSpanElement>(null);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
@@ -27,12 +33,28 @@ export default function Home() {
         setProducts(data);
       }
       const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
-      setCart(storedCart);
+      const normalizedCart = storedCart.map((item: any) => ({
+        ...item,
+        quantity: item.quantity || 1,
+      }));
+      setCart(normalizedCart);
     };
 
     fetchProducts();
   }, []);
 
+
+  const getTotalQuantity = () => {
+    return cart.reduce((sum, item) => sum + item.quantity, 0);
+  };
+  
+  const calculateTotal = () => {
+    const totalItems = getTotalQuantity();
+    const setsOf4 = Math.floor(totalItems / 4);
+    const remainder = totalItems % 4;
+    return setsOf4 * 100 + remainder * 30;
+  };
+  
   const totalPrice =
     cart.length >= 4
       ? Math.floor(cart.length / 4) * 100 + (cart.length % 4) * 30
@@ -40,25 +62,43 @@ export default function Home() {
 
   const addToCart = (product: any) => {
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
-    //create the new item from database
-    const newItem = {
-      id: selectedProduct.id,
-      name: selectedProduct.name,
-      price: selectedProduct.price,
-      image_url: selectedProduct.image_url,
-    };    
-    const updatedCart = [...existingCart, newItem];
-    localStorage.setItem("cart", JSON.stringify(updatedCart)); //save to lacal storage
-    setCart(updatedCart);
-
+  
+    const existingItemIndex = existingCart.findIndex(
+      (item: any) => item.id === product.id
+    );
+  
+    let updatedCart;
+  
+    if (existingItemIndex !== -1) {
+      updatedCart = [...existingCart];
+      updatedCart[existingItemIndex].quantity += 1;
+    } else {
+      const newItem = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image_url: product.image_url,
+        quantity: 1,
+      };
+      updatedCart = [...existingCart, newItem];
+    }
+  
+    // ✅ שמירה בפועל!
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  
+    // קריאה מחדש ועדכון הסטייט
+    const latestCart = JSON.parse(localStorage.getItem("cart") || "[]");
+    setCart(latestCart);
+  
+    // אפקט bounce
     if (badgeRef.current) {
       badgeRef.current.classList.remove("bounce");
       void badgeRef.current.offsetWidth;
       badgeRef.current.classList.add("bounce");
     }
-
-    //setSelectedProduct(null);
   };
+      
+      
 
   return (
     <div className="landing-container">
@@ -66,11 +106,11 @@ export default function Home() {
         <div className="cart-info">
           <div className="cart-badge-wrapper">
             <span>🛒</span>
-            <span ref={badgeRef} className="cart-badge">
-              {cart.length}
+            <span className="cart-badge">
+              {cart.reduce((sum, item) => sum + item.quantity, 0)}
             </span>
           </div>
-          <span>💸 סך הכול: {totalPrice}₪</span>
+          <span>💸 סך הכול: {calculateTotal()}₪</span>
         </div>
         <div className="cart-actions">
           <button className="cta-button small" onClick={() => router.push("/purchase")}>קנה עכשיו</button>
