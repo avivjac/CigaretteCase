@@ -135,6 +135,12 @@ export default function PurchasePage() {
 
 
         <div className="cta-container">
+          <button
+           //onClick={} payment gateway
+           className="cta-button"
+          >
+            <span>💳 שלם</span>
+          </button>
           <button 
             onClick={() => router.push("/")} 
             className="cta-button"
