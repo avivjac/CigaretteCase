@@ -98,6 +98,22 @@ export default function Home() {
     }
   };
       
+  //arrows handling
+  const goToNextProduct = () => {
+    if (!selectedProduct) return;
+    const index = products.findIndex(p => p.id === selectedProduct.id);
+    const nextIndex = (index + 1) % products.length;
+    setSelectedProduct(products[nextIndex]);
+  };
+  
+  //arrows handling
+  const goToPrevProduct = () => {
+    if (!selectedProduct) return;
+    const index = products.findIndex(p => p.id === selectedProduct.id);
+    const prevIndex = (index - 1 + products.length) % products.length;
+    setSelectedProduct(products[prevIndex]);
+  };
+  
       
 
   return (
@@ -148,19 +164,28 @@ export default function Home() {
       </div>
 
       {selectedProduct && (
-        <div className="modal-overlay" onClick={() => setSelectedProduct(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <img src={selectedProduct.image_url} alt={selectedProduct.name} />
-            <h2>{selectedProduct.name}</h2>
-            <p>מחיר: {selectedProduct.price}₪</p>
-            <p>כמות במלאי: {selectedProduct.stock}</p>
-            <div className="modal-buttons">
-              <button className="add" onClick={() => addToCart(selectedProduct)}>הוסף לעגלה</button>
-              <button className="go" onClick={() => router.push("/purchase")}>מעבר לרכישה</button>
+      <div className="modal-overlay" onClick={() => setSelectedProduct(null)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          {/* חצים למעבר */}
+          <div className="modal-nav">
+            <div className="modal-image-container">
+              <button className="modal-arrow left" onClick={goToPrevProduct}>◀</button>
+              <img src={selectedProduct.image_url} alt={selectedProduct.name} />
+              <button className="modal-arrow right" onClick={goToNextProduct}>▶</button>
             </div>
           </div>
+          
+          <h2>{selectedProduct.name}</h2>
+          <p>מחיר: {selectedProduct.price}₪</p>
+          <p>כמות במלאי: {selectedProduct.stock}</p>
+          <div className="modal-buttons">
+            <button className="add" onClick={() => addToCart(selectedProduct)}>הוסף לעגלה</button>
+            <button className="go" onClick={() => router.push("/purchase")}>מעבר לרכישה</button>
+          </div>
         </div>
-      )}
+      </div>
+    )}
+
     </div>
   );
 }

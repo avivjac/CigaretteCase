@@ -73,8 +73,9 @@ export default function PurchasePage() {
     try {
       const orderID : number = await generateOrderId(); // Generate a random order ID
       await addOrderDB1(orderID); // Add order to orders table
-      await addOrderDB2(orderID); // Add items to order_items table
+      //await addOrderDB2(orderID); // Add items to order_items table
       cartItems.forEach((item) => {
+        addOrderDB2(orderID, item.id, item.quantity); // Add each item to order_items table
         addOrderDB3(item.id, item.quantity); // Update stock for each item
       });
       console.log("Order placed successfully with ID:", orderID); 
@@ -94,7 +95,7 @@ export default function PurchasePage() {
           {
             order_id: orderID, 
             order_date: new Date().toISOString(), // Current date and time
-            costumer_name: "", 
+            customer_name: "", 
             address: "",
             total_price: total,
           },
@@ -109,16 +110,16 @@ export default function PurchasePage() {
   };
 
   //add the ordered items to ordered items table
-  const addOrderDB2 = async (orderID : number) => {
+  const addOrderDB2 = async (orderID : number, productID : number, qty : number) => {
     const { data, error } = await supabase
       .from("order_items")
-      .insert(
-        cartItems.map((item) => ({
+      .insert([
+      {
           order_id: orderID, 
-          product_id: item.id,
-          quantity: item.quantity,
-        }))
-      );
+          product_id: productID,
+          quantity: qty,
+      },
+        ]);
 
       // Check for errors
       if (error) {
