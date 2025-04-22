@@ -2,7 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
+import nodemailer from "nodemailer";
+ 
+//database connection
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+export const supabase = createClient(supabaseUrl, supabaseKey);
 
+//main function
 export default function PurchasePage() {
   const router = useRouter();
   const [cartItems, setCartItems] = useState<
@@ -15,6 +23,8 @@ export default function PurchasePage() {
     image_url: string;
     quantity: number;
   }[]>([]);  
+  
+  
 
   //remove item button
   const removeItem = (id: number) => {
@@ -58,6 +68,136 @@ export default function PurchasePage() {
 
   const [total, setTotal] = useState(0);
 
+  //SQL QUERYS
+  //insert new order to database
+  const handleOrderSQL = async () => {
+    try {
+      const orderID : number = await generateOrderId(); // Generate a random order ID
+      await addOrderDB1(orderID); // Add order to orders table
+      //await addOrderDB2(orderID); // Add items to order_items table
+      cartItems.forEach((item) => {
+        addOrderDB2(orderID, item.id, item.quantity); // Add each item to order_items table
+        addOrderDB3(item.id, item.quantity); // Update stock for each item
+      });
+      console.log("Order placed successfully with ID:", orderID); 
+    }
+    catch (error) {
+      console.error("Error placing order:", error);
+    }
+    //clearCart(); // Clear the cart after placing the order
+  };
+
+
+  //add new order to orders table
+  const addOrderDB1 = async (orderID : number) => {
+    const { data, error } = await supabase
+      .from("orders")
+        .insert([
+          {
+            order_id: orderID, 
+            order_date: new Date().toISOString(), // Current date and time
+            customer_name: "", 
+            address: "",
+            total_price: total,
+          },
+        ]);
+
+        // Check for errors
+        if (error) {
+          console.error("❌ שגיאה בהוספה:", error.message);
+        } else {
+          console.log("✅ הוזן בהצלחה:", data);
+        }
+  };
+
+  //add the ordered items to ordered items table
+  const addOrderDB2 = async (orderID : number, productID : number, qty : number) => {
+    const { data, error } = await supabase
+      .from("order_items")
+      .insert([
+      {
+          order_id: orderID, 
+          product_id: productID,
+          quantity: qty,
+      },
+        ]);
+
+      // Check for errors
+      if (error) {
+        console.error("❌ שגיאה בהוספה:", error.message);
+      } else {
+        console.log("✅ הוזן בהצלחה:", data);
+      }
+  };
+
+  //check with database if the orderID is unique
+  const checkUnique = async (orderId: number): Promise<boolean> => {
+    const { data, error } = await supabase
+      .from("orders")
+      .select("order_id")
+      .eq("order_id", orderId);
+
+    if (error) {
+      console.error("❌ Error checking uniqueness:", error.message);
+      return false; // Return false in case of an error
+    }
+
+    return data.length === 0; // Return true if the order ID is unique
+  };
+
+  //generating random and unique orderID
+  const generateOrderId = async (): Promise<number> => {
+    let orderId = Math.floor(Math.random() * 1000000);
+    let isUnique = await checkUnique(orderId);
+    while (!isUnique) {
+      orderId = Math.floor(Math.random() * 1000000);
+      isUnique = await checkUnique(orderId);
+    }
+    return orderId;
+  };
+
+  //update the stock in the database
+  const addOrderDB3 = async (productID : number, qty : number) => {
+    const { data, error } = await supabase.rpc("decrease_stock", {
+      pid: productID,
+      qty: qty,
+    });
+
+    // Check for errors
+    if (error) {
+      console.error("שגיאה בעדכון המלאי:", error.message);
+    } else {
+      console.log("עודכן בהצלחה", data);
+    }
+  };
+
+  //mail sending function
+  const transporter = nodemailer.createTransport({
+    host: "smtp-relay.brevo.com",
+    port: 587,
+    secure: false, // TLS
+    auth: {
+      user: "avivj2012@gmail.com", // זה האימייל שלך ב־Brevo
+      pass: process.env.SMTP_PASSWORD, //SMTP API Key
+    },
+  });
+  
+  /**
+ * שולח מייל לכתובת נתונה
+ * @param {string} toEmail - כתובת היעד
+ */
+  function sendEmail(toEmail : string) {
+    transporter.sendMail({
+      from: '"האתר שלי" <youremail@yourdomain.com>', // אותו מייל מה־user
+      to: toEmail,
+      subject: "ברוך הבא!",
+      text: "שלום וברוך הבא לאתר שלנו.",
+      html: "<h1>שלום וברוך הבא!</h1><p>שמחים שהצטרפת אלינו 🎉</p>",
+    })
+    .then(() => console.log("✅ מייל נשלח בהצלחה ל:", toEmail))
+    .catch((err : any) => console.error("❌ שגיאה בשליחת מייל:", err));
+  }
+    
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
     setCartItems(storedCart);
@@ -104,7 +244,7 @@ export default function PurchasePage() {
       <th>מוצר</th>
       <th>תמונה</th>
       <th>כמות</th>
-      <th>סה"כ</th>
+      <th>מחיר ליחידה</th>
       <th></th>
     </tr>
   </thead>
@@ -136,7 +276,7 @@ export default function PurchasePage() {
 
         <div className="cta-container">
           <button
-           //onClick={} payment gateway
+           onClick={handleOrderSQL} //payment gateway
            className="cta-button"
           >
             <span>💳 שלם</span>

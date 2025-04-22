@@ -20,7 +20,7 @@ export default function Home() {
     price: number;
     image_url: string;
     quantity: number;
-  }[]>([]);  
+  }[]>([]);
   const badgeRef = useRef<HTMLSpanElement>(null);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
@@ -47,14 +47,14 @@ export default function Home() {
   const getTotalQuantity = () => {
     return cart.reduce((sum, item) => sum + item.quantity, 0);
   };
-  
+
   const calculateTotal = () => {
     const totalItems = getTotalQuantity();
     const setsOf4 = Math.floor(totalItems / 4);
     const remainder = totalItems % 4;
     return setsOf4 * 100 + remainder * 30;
   };
-  
+
   const totalPrice =
     cart.length >= 4
       ? Math.floor(cart.length / 4) * 100 + (cart.length % 4) * 30
@@ -90,7 +90,7 @@ export default function Home() {
     const latestCart = JSON.parse(localStorage.getItem("cart") || "[]");
     setCart(latestCart);
   
-    // אפקט bounce
+    // bounce effect
     if (badgeRef.current) {
       badgeRef.current.classList.remove("bounce");
       void badgeRef.current.offsetWidth;
@@ -98,6 +98,22 @@ export default function Home() {
     }
   };
       
+  //arrows handling
+  const goToNextProduct = () => {
+    if (!selectedProduct) return;
+    const index = products.findIndex(p => p.id === selectedProduct.id);
+    const nextIndex = (index + 1) % products.length;
+    setSelectedProduct(products[nextIndex]);
+  };
+  
+  //arrows handling
+  const goToPrevProduct = () => {
+    if (!selectedProduct) return;
+    const index = products.findIndex(p => p.id === selectedProduct.id);
+    const prevIndex = (index - 1 + products.length) % products.length;
+    setSelectedProduct(products[prevIndex]);
+  };
+  
       
 
   return (
@@ -148,19 +164,28 @@ export default function Home() {
       </div>
 
       {selectedProduct && (
-        <div className="modal-overlay" onClick={() => setSelectedProduct(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <img src={selectedProduct.image_url} alt={selectedProduct.name} />
-            <h2>{selectedProduct.name}</h2>
-            <p>מחיר: {selectedProduct.price}₪</p>
-            <p>כמות במלאי: {selectedProduct.stock}</p>
-            <div className="modal-buttons">
-              <button className="add" onClick={() => addToCart(selectedProduct)}>הוסף לעגלה</button>
-              <button className="go" onClick={() => router.push("/purchase")}>מעבר לרכישה</button>
+      <div className="modal-overlay" onClick={() => setSelectedProduct(null)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          {/* חצים למעבר */}
+          <div className="modal-nav">
+            <div className="modal-image-container">
+              <button className="modal-arrow left" onClick={goToPrevProduct}>◀</button>
+              <img src={selectedProduct.image_url} alt={selectedProduct.name} />
+              <button className="modal-arrow right" onClick={goToNextProduct}>▶</button>
             </div>
           </div>
+          
+          <h2>{selectedProduct.name}</h2>
+          <p>מחיר: {selectedProduct.price}₪</p>
+          <p>כמות במלאי: {selectedProduct.stock}</p>
+          <div className="modal-buttons">
+            <button className="add" onClick={() => addToCart(selectedProduct)}>הוסף לעגלה</button>
+            <button className="go" onClick={() => router.push("/purchase")}>מעבר לרכישה</button>
+          </div>
         </div>
-      )}
+      </div>
+    )}
+
     </div>
   );
 }
