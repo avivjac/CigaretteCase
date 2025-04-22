@@ -418,3 +418,23 @@
 .modal-arrow.right {
   right: 10px;
 }
+ 
+/* info maodl */
+.checkout-form input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.pay-button {
+  margin-top: 15px;
+  background-color: #4caf50;
+}
+
+.pay-button:hover {
+  background-color: #388e3c;
+}
