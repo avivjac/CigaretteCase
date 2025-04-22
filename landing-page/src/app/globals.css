@@ -299,6 +299,8 @@
   max-width: 400px;
   width: 90%;
   text-align: center;
+
+  box-sizing: border-box;
 }
 
 .modal-content img {
@@ -424,6 +426,13 @@
   display: block;
   width: 100%;
   padding: 10px;
+  align-items: center;
+  justify-content: center;
+  text-align: right;
+  background-color: #f9f9f9;
+  color: #333;
+  margin-top: 10px;
+
   margin-bottom: 12px;
   border-radius: 8px;
   border: 1px solid #ccc;
