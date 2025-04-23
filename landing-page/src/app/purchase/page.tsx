@@ -77,118 +77,17 @@ export default function PurchasePage() {
 
   const [total, setTotal] = useState(0);
 
-  // //SQL QUERYS
-  // //insert new order to database
-  // const handleOrderSQL = async () => {
-  //   try {
-  //     const orderID : number = await generateOrderId(); // Generate a random order ID
-  //     await addOrderDB1(orderID); // Add order to orders table
-  //     //await addOrderDB2(orderID); // Add items to order_items table
-  //     cartItems.forEach((item) => {
-  //       addOrderDB2(orderID, item.id, item.quantity); // Add each item to order_items table
-  //       addOrderDB3(item.id, item.quantity); // Update stock for each item
-  //     });
-  //     console.log("Order placed successfully with ID:", orderID); 
-  //   }
-  //   catch (error) {
-  //     console.error("Error placing order:", error);
-  //   }
-  //   //clearCart(); // Clear the cart after placing the order
-  // };
-
-
-  // //add new order to orders table
-  // const addOrderDB1 = async (orderID : number) => {
-  //   const { data, error } = await supabase
-  //     .from("orders")
-  //       .insert([
-  //         {
-  //           order_id: orderID, 
-  //           order_date: new Date().toISOString(), // Current date and time
-  //           customer_name: "", 
-  //           address: "",
-  //           total_price: total,
-  //         },
-  //       ]);
-
-  //       // Check for errors
-  //       if (error) {
-  //         console.error("❌ שגיאה בהוספה:", error.message);
-  //       } else {
-  //         console.log("✅ הוזן בהצלחה:", data);
-  //       }
-  // };
-
-  // //add the ordered items to ordered items table
-  // const addOrderDB2 = async (orderID : number, productID : number, qty : number) => {
-  //   const { data, error } = await supabase
-  //     .from("order_items")
-  //     .insert([
-  //     {
-  //         order_id: orderID, 
-  //         product_id: productID,
-  //         quantity: qty,
-  //     },
-  //       ]);
-
-  //     // Check for errors
-  //     if (error) {
-  //       console.error("❌ שגיאה בהוספה:", error.message);
-  //     } else {
-  //       console.log("✅ הוזן בהצלחה:", data);
-  //     }
-  // };
-
-  // //check with database if the orderID is unique
-  // const checkUnique = async (orderId: number): Promise<boolean> => {
-  //   const { data, error } = await supabase
-  //     .from("orders")
-  //     .select("order_id")
-  //     .eq("order_id", orderId);
-
-  //   if (error) {
-  //     console.error("❌ Error checking uniqueness:", error.message);
-  //     return false; // Return false in case of an error
-  //   }
-
-  //   return data.length === 0; // Return true if the order ID is unique
-  // };
-
-  // //generating random and unique orderID
-  // const generateOrderId = async (): Promise<number> => {
-  //   let orderId = Math.floor(Math.random() * 1000000);
-  //   let isUnique = await checkUnique(orderId);
-  //   while (!isUnique) {
-  //     orderId = Math.floor(Math.random() * 1000000);
-  //     isUnique = await checkUnique(orderId);
-  //   }
-  //   return orderId;
-  // };
-
-  // //update the stock in the database
-  // const addOrderDB3 = async (productID : number, qty : number) => {
-  //   const { data, error } = await supabase.rpc("decrease_stock", {
-  //     pid: productID,
-  //     qty: qty,
-  //   });
-
-  //   // Check for errors
-  //   if (error) {
-  //     console.error("שגיאה בעדכון המלאי:", error.message);
-  //   } else {
-  //     console.log("עודכן בהצלחה", data);
-  //   }
-  // };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Send email using nodemailer
     const res = await fetch("/api/send-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fullName, email, address }),
     });
 
+    // Update the database with the order details
     const resSQL = await fetch("/api/place-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -208,33 +107,6 @@ export default function PurchasePage() {
       alert("שגיאה בשליחה");
     }
   };
-  
-//   //mail sending function
-//   const transporter = nodemailer.createTransport({
-//     host: "smtp-relay.brevo.com",
-//     port: 587,
-//     secure: false, // TLS
-//     auth: {
-//       user: "avivj2012@gmail.com", // זה האימייל שלך ב־Brevo
-//       pass: process.env.SMTP_PASSWORD, //SMTP API Key
-//     },
-//   });
-  
-//   /**
-//  * שולח מייל לכתובת נתונה
-//  * @param {string} toEmail - כתובת היעד
-//  */
-//   function sendEmail(toEmail : string) {
-//     transporter.sendMail({
-//       from: '"האתר שלי" <youremail@yourdomain.com>', // אותו מייל מה־user
-//       to: toEmail,
-//       subject: "ברוך הבא!",
-//       text: "שלום וברוך הבא לאתר שלנו.",
-//       html: "<h1>שלום וברוך הבא!</h1><p>שמחים שהצטרפת אלינו 🎉</p>",
-//     })
-//     .then(() => console.log("✅ מייל נשלח בהצלחה ל:", toEmail))
-//     .catch((err : any) => console.error("❌ שגיאה בשליחת מייל:", err));
-//   }
     
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -261,13 +133,6 @@ export default function PurchasePage() {
           </div>
           <span>💸 סך הכול: {total}₪</span>
         </div>
-        {/* <div className="cart-actions">
-          <button className="cta-button small" onClick={() => router.push("/purchase")}>קנה עכשיו</button>
-          <button className="clear-cart-button" onClick={() => {
-            localStorage.removeItem("cart");
-            setCart([]);
-          }}>נקה עגלה</button>
-        </div> */}
       </div>
 
       <div className="product-showcase">
@@ -277,44 +142,43 @@ export default function PurchasePage() {
         <h2>סה"כ לתשלום: {total} ₪</h2>
 
         <table className="cart-table">
-  <thead>
-    <tr>
-      <th>מוצר</th>
-      <th>תמונה</th>
-      <th>כמות</th>
-      <th>מחיר ליחידה</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {cartItems.map((item) => (
-      <tr key={item.id}>
-        <td>{item.name}</td>
-        <td>
-          <img src={item.image_url} alt={item.name} style={{ width: "50px", borderRadius: "8px" }} />
-        </td>
-        <td>
-          <input
-            type="number"
-            min="1"
-            value={item.quantity}
-            onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
-            style={{ width: "50px", textAlign: "center" }}
-          />
-        </td>
-        <td>{item.price * item.quantity} ₪</td>
-        <td>
-          <button onClick={() => removeItem(item.id)}>🗑️</button>
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
+          <thead>
+            <tr>
+              <th>מוצר</th>
+              <th>תמונה</th>
+              <th>כמות</th>
+              <th>מחיר ליחידה</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {cartItems.map((item) => (
+              <tr key={item.id}>
+                <td>{item.name}</td>
+                <td>
+                  <img src={item.image_url} alt={item.name} style={{ width: "50px", borderRadius: "8px" }} />
+                </td>
+                <td>
+                  <input
+                    type="number"
+                    min="1"
+                    value={item.quantity}
+                    onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
+                    style={{ width: "50px", textAlign: "center" }}
+                  />
+                </td>
+                <td>{item.price * item.quantity} ₪</td>
+                <td>
+                  <button onClick={() => removeItem(item.id)}>🗑️</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-
-        <div className="cta-container">
+        <div className="cta-container"/* modal for payment */> 
           <button
-           onClick={() => setShowPaymentModal(true)} //payment gateway
+           onClick={() => setShowPaymentModal(true)} 
            className="cta-button"
           >
             <span>💳 שלם</span>
@@ -324,11 +188,7 @@ export default function PurchasePage() {
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <h2>📝 פרטי ההזמנה</h2>
                 <form className="checkout-form" onSubmit={(e) => {
-                  handleSubmit(e); // Send email after order is placed
-                  // e.preventDefault();
-                  // handleOrderSQL(); // Place the order in the database
-                  // //sendEmail(email); // Send email after order is placed
-                  // setShowPaymentModal(false); // Close the modal after sending the email
+                  handleSubmit(e); // backend function
                 }}>
                   <input type="text" placeholder="שם מלא" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
                   <input type="text" placeholder="כתובת" value={address} onChange={(e) => setAddress(e.target.value)} required />
@@ -336,13 +196,6 @@ export default function PurchasePage() {
                   <div style={{ marginTop: "10px" }}>
                     <button type="submit" className="cta-button">שלח הזמנה</button>
                   </div>
-                  
-                {/* <input type="text" placeholder="שם מלא" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-                <input type="text" placeholder="כתובת" value={address} onChange={(e) => setAddress(e.target.value)} required />
-                <input type="email" placeholder="אימייל" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                  <div style={{ marginTop: "10px" }}>
-                    <button type="submit" className="cta-button">שלח הזמנה</button>
-                  </div> */}
                 </form>
               </div>
             </div>

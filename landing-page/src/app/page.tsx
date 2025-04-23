@@ -113,6 +113,12 @@ export default function Home() {
     const prevIndex = (index - 1 + products.length) % products.length;
     setSelectedProduct(products[prevIndex]);
   };
+
+  const movePage = () => {
+    if (cart.length > 0) {
+      router.push("/purchase");
+    }
+  }
   
       
 
@@ -129,7 +135,7 @@ export default function Home() {
           <span>💸 סך הכול: {calculateTotal()}₪</span>
         </div>
         <div className="cart-actions">
-          <button className="cta-button small" onClick={() => router.push("/purchase")}>קנה עכשיו</button>
+          <button className="cta-button small" onClick={movePage}>קנה עכשיו</button>
           <button className="clear-cart-button" onClick={() => {
             localStorage.removeItem("cart");
             setCart([]);
@@ -154,7 +160,7 @@ export default function Home() {
       </div>
 
       <div className="cta-container">
-        <button className="cta-button" onClick={() => router.push("/purchase")}>הזמן עכשיו</button>
+        <button className="cta-button" onClick={movePage}>הזמן עכשיו</button>
         <button className="clear-cart-button-body" onClick={() => {
           localStorage.removeItem("cart");
           setCart([]);
@@ -180,7 +186,7 @@ export default function Home() {
           <p>כמות במלאי: {selectedProduct.stock}</p>
           <div className="modal-buttons">
             <button className="add" onClick={() => addToCart(selectedProduct)}>הוסף לעגלה</button>
-            <button className="go" onClick={() => router.push("/purchase")}>מעבר לרכישה</button>
+            <button className="go" onClick={movePage}>מעבר לרכישה</button>
           </div>
         </div>
       </div>
